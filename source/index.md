@@ -17,6 +17,7 @@ includes:
   - brands
   - locales
   - orders
+  - pages
   - products
   - store
 

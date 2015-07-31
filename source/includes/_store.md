@@ -140,7 +140,8 @@ r = requests.get(endpoint, headers=headers)
 
 The following objects can be embedded using the following keywords:
 
-- **locales** : will embed the list of [locales](#locales) your store is expected to be able to handle. This list is different from the broader `GET locales` as the returned locales were manually selected for your store in the KEM Console.
 - **contracts** : will embed the list of applicable [contracts](#contracts) your store must present to your users.
+- **locales** : will embed the list of [locales](#locales) your store is expected to be able to handle. This list is different from the broader `GET locales` as the returned locales were manually selected for your store in the KEM Console.
+- **pages** : will embed the list of applicable [pages](#pages) your store must present to your users.
 
 Multiple objects can be embeded by separating keywords with a comma.

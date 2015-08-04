@@ -16,8 +16,8 @@ The *order* object itself is a relatively straightforward object.
 | production       | boolean | When `production` is false, the order was created with a development API key and should be treated as a test order. Unlike [customers](#customers), orders `production` flag is immutable; a `production : true` order will never be fulfilled. |
 | date             | string  | The order creation date, in an ISO 8601 compatible format (e.g. "1970-10-28 13:22:14").                                                                                                                                                         |
 | status           | string  | The order status.                                                                                                                                                                                                                               |
-| shipping_address | object  | The order's delivery [address](#address). Can be exceptionally `null` for order created over the phone.                                                                                                                                         |
-| billing_address  | object  | The order's billing [address](#address). If `billing_address` is null while `shipping_address` is not, `shipping_address` is also the `billing_address`.                                                                                        |
+| shipping_address | object  | The order's delivery [address](#addresses). Can be exceptionally `null` for order created over the phone.                                                                                                                                         |
+| billing_address  | object  | The order's billing [address](#addresses). If `billing_address` is null while `shipping_address` is not, `shipping_address` is also the `billing_address`.                                                                                        |
 | verification     | integer | A four digits code used to verify the customers's ownership of the order. We currently use this PIN to identify customers who want to pick up their order at our warehouse, but we could use it elsewhere.                                      |
 | payment_details  | object  | Order payment information.                                                                                                                                                                                                                      |
 | items            | array   | An array of Items objects.                                                                                                                                                                                                                      |
@@ -349,7 +349,7 @@ curl -X POST \
 		"return_url":"https://example.com/success", \
 		"customer": {"email":"shirley@example.com"}, \
 		"shipping": {"method":"DOM.EP", "signature":"1432685850:l0esPFkm0VyT:434d400b84f7e350423fded032c32029b4a3bbca76a859de25f915ff42db5a5c","price":"7.86"}, \
-		"items": [{"id":123,"quantity":1}], \
+		"items": [{"id":123,"quantity":1,"format": "32-wipes"}], \
 		"shipping_address": {"postcode":"H2V 4G7","country":"CA","province":"QC","line1":"5412 Park", "name":"Shirley Bennett","city":"Montreal","phone":"+15143035667"}}' \
 	https://api.kem.guru/api/1/orders
 ```
@@ -372,7 +372,8 @@ $body = <<<EOT
     "items": [
 		{
         "id": 123,
-        "quantity": 1
+        "quantity": 1,
+		"format": "32-wipes"
     	}
 	],
     "shipping_address": {
@@ -422,7 +423,8 @@ payload = """
     "items": [
 		{
         "id": 123,
-        "quantity": 1
+        "quantity": 1,
+		"format": "32-wipes"
     	}
 	],
     "shipping_address": {
@@ -497,46 +499,55 @@ r = requests.post(endpoint, headers=headers, data=payload)
     "items": [{
         "quantity": 1,
         "price": 44.9,
+		"format": "32-wipes",
         "canceled": false,
         "shipped": false,
         "id": 123,
         "product": {
-            "id": 123,
-            "price": 19.95,
-            "taxable": true,
-            "barcode": "123456789012",
-            "sku": "B003SXGN7K",
-            "weight": 0.23,
-            "enabled": true,
-            "discontinued": false,
-            "reduced_price": {
-                "price": 15.95
-            },
-            "rating": 0.98,
-            "brand": {
-                "id": 123,
-                "slug": "hawtorne-wipes",
-                "name": "Hawtorne Wipes"
-            },
-            "localization": {
-                "name": "Troy and Abed Mug",
-                "short_description": "Excellent mug for a fake morning show.",
-                "long_description": "An interview with Señor Chang...",
-                "slug": "troy-abed-morning-mug",
-                "custom_description": {
-                    "content": "I use this mug every single day...",
-                    "author_name": "Dean Pelton",
-                    "author_avatar": "{base64 encoded png}"
-                }
-            },
-            "images": [{
-                "id": 9876,
-                "url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
-            }],
-            "inventory": {
-                "count": 0
-            }
-        }
+	      "id": 123,
+	      "taxable": true,
+	      "enabled": true,
+	      "formats": [
+	 	 	{
+				"id": "32-wipes",
+				"name": "32 wipes",
+	 			"price": 19.95,
+	 			"barcode": "123456789012",
+	 	        "sku": "B003SXGN7K",
+	 	        "weight": 0.23,
+	 			"discontinued": false,
+	 	        "reduced_price": {
+	 	      	  "price": 15.95
+	 	        },
+	 	        "inventory": {
+	 	          "count": 0
+	 	        }
+	 		}
+	 	 ],
+	      "rating": 0.98,
+	      "brand": {
+	        "id": 123,
+	        "slug": "hawtorne-wipes",
+	        "name": "Hawtorne Wipes"
+	      },
+	      "localization": {
+	        "name": "Troy and Abed Mug",
+	        "short_description": "Excellent mug for a fake morning show.",
+	        "long_description": "An interview with Señor Chang...",
+	        "slug": "troy-abed-morning-mug",
+	        "custom_description": {
+	          "content": "I use this mug every single day...",
+	          "author_name": "Dean Pelton",
+	          "author_avatar": "{base64 encoded png}"
+	        }
+	      },
+	      "images": [
+	        {
+	          "id": 9876,
+	          "url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
+	        }
+	      ]
+	    }
     }]
 }
 
@@ -548,8 +559,8 @@ r = requests.post(endpoint, headers=headers, data=payload)
 |------------------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | return_url | string | An optional return url, where the payment gateway will redirect the customer after the payment is processed. Your return url should use the http:// or https:// protocols. If you need the API to support another protocol (to jump back to your app, for example), just let us know. An `&order=` parameter will be added to the return url with the order number. |
 | customer | object | A complete or partial [customer](#customers) object. If an `id` is passed, the order will automatically be associated with the existing customer and other present fields will update the customer object. If no `id` is included, the API will attempt to create a new customer with the provided field data. If a customer already exists with the same phone number or email address, the order will automatically be attached to that existing customer, and any other included field data will be used to update that customer. |
-| items | array | A list of [items](#item-object). Only the `id` and `quantity` are required, any other parameter will be ignored. |
-| shipping | object | A complete or partial [shipping](#shipping-object) object. Only the `method` field is required. Passing back the entire object retrieved in the [estimate](#estimate-taxes-and-shipping) call is considered a best practice. |
+| items | array | A list of [items](#item-object). Only `id`, `format` and `quantity` are required, any other parameter will be ignored. If no `format` is passed, the first available format will be selected. |
+| shipping | object | A complete or partial [shipping](#shipping-object) object. Even though only the `method` field is required, passing back the entire object retrieved in the [estimate](#estimate-taxes-and-shipping) call is considered a best practice. |
 | shipping_address | object | An [address](#addresses) object, where the order will be ultimately shipped. |
 | billing_address | object | An optional [address](#addresses). If the parameter is omitted or is `null`, the `shipping_address` will be used instead. |
 

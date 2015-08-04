@@ -7,26 +7,14 @@ The *product* object is central to KEM API as it provides everything there is to
 | Name     | Type    | Description                                                                                                      |
 |----------|---------|------------------------------------------------------------------------------------------------------------------|
 | id       | integer | KEM unique ID for this product.                                                                                  |
-| price    | float   | Regular sale price.																						        |
 | taxable  | boolean | Does tax normally apply to this product.																			|
-| barcode  | string  | A string containing a 12 digits UPC code or a 13 digits EAN symbol, exactly as a barcode scanner would read it on the product's label. |
-| sku      | string  | *Deprecated* A supplier or manufacturer specific sku. Data accuracy can vary greatly.							|
-| weight   | float   | The products weight in kilograms.																				|
 | enabled  | boolean | Should the product be visible and available to buy by customers. Will normaly be *true* but might be *false* when retrieving older orders' content. Do not present a disabled product's description or photos to customers. 							   |
-| discontinued| boolean  | When discontinued is *true*, a product is not available for purchase and should not be sold. Unlike disabled products, discontinued products were not removed from sale because of a quality issue but mostly because of product shortages. Discontinued products might even come back on the market at some point in the future. If your application is publicly accessible on the web, you can avoid losing search engine placement for discontinued products by presenting discontinued products pages to customers while disabling their purchase buttons. |
-| reduced_price| object| When a product is on sale, a *Reduced price object will be included. Defaults to *null* normally. 			   |
 | slug   | string   | A url-friendly slug. Can be used to retrieve a product in place of a product ID. |
 | rating | float    | Product score, on a 0 to 1 scale. 					 														   |
 | brand  | object   | A [brand](#brands) object.																						|
 | localization  | object   | The product's localization object. 																		|
 | images | array | An array of product images.																						    |
-| inventory | object | An inventory object.																						    |
-
-### Reduced price object
-
-| Name     | Type    | Description                                                                                                      |
-|----------|---------|------------------------------------------------------------------------------------------------------------------|
-| float    | price   | The product's reduced price.                                                                                     |
+| formats | array | A list of format objects.																						    |
 
 
 ### Localization object
@@ -77,12 +65,38 @@ Image URLs include replaceable path parameters that must be substituted for actu
 	- **greyscale** Apply a greyscale filter.
 	- **mask:type** : Apply a given shape as alpha mask to the current image to change current opacity. Any transparency values of the current image will be maintained. *circle*, *superellipse* and *roundedrect*.
 
-### Inventory object
+
+### Format object
+
+A product can be available in different formats. For example, a water bottle could be available for sale in a 500 ml format as well as a 750 ml, each format at different price point.
+
+| Name     | Type    | Description                                                                                                      |
+|----------|---------|------------------------------------------------------------------------------------------------------------------|
+| id       | string  | KEM ID for this format. Is unique among formats of the same product but not globally.							|
+| name     | string  | A localized, displayable name for the format.																	|
+| price    | float   | Regular sale price.																						        |
+| barcode  | string  | A string containing a 12 digits UPC code or a 13 digits EAN symbol, exactly as a barcode scanner would read it on the product's label. |
+| sku      | string  | *Deprecated* A supplier or manufacturer specific sku. Data accuracy can vary greatly.							|
+| weight   | float   | The products weight in kilograms.																				|
+| discontinued| boolean  | When discontinued is *true*, a product format is not available for purchase and should not be sold. Unlike disabled products, discontinued products were not removed from sale because of a quality issue but mostly because of product shortages. Discontinued products might even come back on the market at some point in the future. If your application is publicly accessible on the web, you can avoid losing search engine placement for discontinued products by presenting discontinued products pages to customers while disabling their purchase buttons. Be aware that a single format can be discontinued while others are not. |
+| reduced_price| object| When a product is on sale, a *Reduced price object will be included. Defaults to *null* normally. 			   |
+| inventory | object | An inventory object.																						    |
+
+
+
+#### Inventory object
 
 | Name     | Type    | Description                                                                                                      |
 |----------|---------|------------------------------------------------------------------------------------------------------------------|
 | count    | integer | A count of currently available product in stock. Products not in stock (`count` of 0) can still be bought if they are not discontinued nor disabled. |
 | availability | integer | Days count before the product will be shipped (approximatively). |
+
+
+#### Reduced price object
+
+| Name     | Type    | Description                                                                                                      |
+|----------|---------|------------------------------------------------------------------------------------------------------------------|
+| float    | price   | The product's format reduced price.                                                                              |
 
 
 
@@ -133,16 +147,25 @@ r = requests.get(endpoint, headers=headers)
   "organic_results": [
    {
      "id": 123,
-     "price": 19.95,
      "taxable": true,
-     "barcode": "123456789012",
-     "sku": "B003SXGN7K",
-     "weight": 0.23,
      "enabled": true,
-     "discontinued": false,
-     "reduced_price": {
-   	  "price": 15.95
-     },
+     "formats": [
+	 	{
+			"id": "32-wipes",
+			"name": "32 wipes",
+			"price": 19.95,
+			"barcode": "123456789012",
+	        "sku": "B003SXGN7K",
+	        "weight": 0.23,
+			"discontinued": false,
+	        "reduced_price": {
+	      	  "price": 15.95
+	        },
+	        "inventory": {
+	          "count": 0
+	        }
+		}
+	 ],
      "rating": 0.98,
      "brand": {
        "id": 123,
@@ -165,10 +188,7 @@ r = requests.get(endpoint, headers=headers)
          "id": 9876,
          "url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
        }
-     ],
-     "inventory": {
-       "count": 0
-     }
+     ]
    }
   ],
   "tags": [
@@ -176,45 +196,51 @@ r = requests.get(endpoint, headers=headers)
       "name": "Hawtorn Wipes",
       "id": 1,
       "products": [
-		{
-		  "id": 123,
-		  "price": 19.95,
-		  "taxable": true,
-		  "barcode": "123456789012",
-		  "sku": "B003SXGN7K",
-		  "weight": 0.23,
-		  "enabled": true,
-		  "discontinued": false,
-		  "reduced_price": {
-			  "price": 15.95
-		  },
-		  "rating": 0.98,
-		  "brand": {
-		    "id": 123,
-		    "slug": "hawtorne-wipes",
-		    "name": "Hawtorne Wipes"
-		  },
-		  "localization": {
-		    "name": "Troy and Abed Mug",
-		    "short_description": "Excellent mug for a fake morning show.",
-		    "long_description": "An interview with Señor Chang...",
-		    "slug": "troy-abed-morning-mug",
-		    "custom_description": {
-		      "content": "I use this mug every single day...",
-		      "author_name": "Dean Pelton",
-		      "author_avatar": "{base64 encoded png}"
-		    }
-		  },
-		  "images": [
-		    {
-		      "id": 9876,
-		      "url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
-		    }
-		  ],
-		  "inventory": {
-		    "count": 0
-		  }
-		}
+	    {
+	      "id": 123,
+	      "taxable": true,
+	      "enabled": true,
+	      "formats": [
+	 	 	{
+				"id": "32-wipes",
+				"name": "32 wipes",
+	 			"price": 19.95,
+	 			"barcode": "123456789012",
+	 	        "sku": "B003SXGN7K",
+	 	        "weight": 0.23,
+	 			"discontinued": false,
+	 	        "reduced_price": {
+	 	      	  "price": 15.95
+	 	        },
+	 	        "inventory": {
+	 	          "count": 0
+	 	        }
+	 		}
+	 	 ],
+	      "rating": 0.98,
+	      "brand": {
+	        "id": 123,
+	        "slug": "hawtorne-wipes",
+	        "name": "Hawtorne Wipes"
+	      },
+	      "localization": {
+	        "name": "Troy and Abed Mug",
+	        "short_description": "Excellent mug for a fake morning show.",
+	        "long_description": "An interview with Señor Chang...",
+	        "slug": "troy-abed-morning-mug",
+	        "custom_description": {
+	          "content": "I use this mug every single day...",
+	          "author_name": "Dean Pelton",
+	          "author_avatar": "{base64 encoded png}"
+	        }
+	      },
+	      "images": [
+	        {
+	          "id": 9876,
+	          "url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
+	        }
+	      ]
+	    }
       ]
     }
   ]
@@ -308,45 +334,66 @@ r = requests.get(endpoint, headers=headers)
 > Example response
 
 ```json
-{
-  "id": 123,
-  "price": 19.95,
-  "taxable": true,
-  "barcode": "123456789012",
-  "sku": "B003SXGN7K",
-  "weight": 0.23,
-  "enabled": true,
-  "discontinued": false,
-  "reduced_price": {
-	  "price": 15.95
-  },
-  "rating": 0.98,
-  "brand": {
-    "id": 123,
-    "slug": "hawtorne-wipes",
-    "name": "Hawtorne Wipes"
-  },
-  "localization": {
-    "name": "Troy and Abed Mug",
-    "short_description": "Excellent mug for a fake morning show.",
-    "long_description": "An interview with Señor Chang...",
-    "slug": "troy-abed-morning-mug",
-    "custom_description": {
-      "content": "I use this mug every single day...",
-      "author_name": "Dean Pelton",
-      "author_avatar": "{base64 encoded png}"
-    }
-  },
-  "images": [
-    {
-      "id": 9876,
-      "url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
-    }
-  ],
-  "inventory": {
-    "count": 0
-  }
-}
+   {
+     "id": 123,
+     "taxable": true,
+     "enabled": true,
+     "formats": [
+	 	{
+			"id": "32-wipes",
+			"name": "32 wipes",
+			"price": 19.95,
+			"barcode": "123456789012",
+	        "sku": "B003SXGN7K",
+	        "weight": 0.23,
+			"discontinued": false,
+	        "reduced_price": {
+	      	  "price": 15.95
+	        },
+	        "inventory": {
+	          "count": 0
+	        }
+		},
+	 	{
+			"id": "64-wipes",
+			"name": "64 wipes",
+			"price": 29.95,
+			"barcode": "123456789013",
+	        "sku": "B003SXGN7Z",
+	        "weight": 0.46,
+			"discontinued": false,
+	        "reduced_price": {
+	      	  "price": 24.99
+	        },
+	        "inventory": {
+	          "count": 16
+	        }
+		}
+	 ],
+     "rating": 0.98,
+     "brand": {
+       "id": 123,
+       "slug": "hawtorne-wipes",
+       "name": "Hawtorne Wipes"
+     },
+     "localization": {
+       "name": "Troy and Abed Mug",
+       "short_description": "Excellent mug for a fake morning show.",
+       "long_description": "An interview with Señor Chang...",
+       "slug": "troy-abed-morning-mug",
+       "custom_description": {
+         "content": "I use this mug every single day...",
+         "author_name": "Dean Pelton",
+         "author_avatar": "{base64 encoded png}"
+       }
+     },
+     "images": [
+       {
+         "id": 9876,
+         "url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
+       }
+     ]
+   }
 ```
 
 ### Path parameters

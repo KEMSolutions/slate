@@ -74,6 +74,21 @@ r = requests.get(endpoint, headers=headers)
 ]
 ```
 
+### Parameters
+
+| Name   | Type   | Description                                                                                                                         |
+|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------|
+| embed  | string | Allows you to retrieve in a single call customers as well as their addresses. 														|
+
+
+
+#### Embeds
+
+The following objects can be embedded.
+
+- **addresses** : A list of [addresses](#addresses) used by customers in their past orders and/or manually added with the API.
+
+
 ## Create customer
 
 `POST /api/1/customers`
@@ -213,6 +228,19 @@ r = requests.get(endpoint, headers=headers)
 |------|-------------------|---------------------------------------------------------------------|
 | {id} | integer or string | The customer's object unique ID or a base 64 encoded email address. |
 
+
+### Parameters
+
+| Name   | Type   | Description                                                                                                                         |
+|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------|
+| embed  | string | Allows you to retrieve in a single call a customer object as well an array of addresses. 											|
+
+
+#### Embeds
+
+The following objects can be embedded.
+
+- **addresses** : A list of [addresses](#addresses) used by the customer in her past orders and/or manually added with the API.
 
 
 ## Update customer

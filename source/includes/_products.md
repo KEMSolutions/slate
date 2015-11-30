@@ -21,8 +21,9 @@ The *product* object is central to KEM API as it provides everything there is to
 
 | Name     | Type    | Description                                                                                                      |
 |----------|---------|------------------------------------------------------------------------------------------------------------------|
-| slug     | string  | A url-friendly slug. Can be used to retrieve a product in place of a product ID. The localization object will only contain this variable if the [currently request locale](#language) is different to this localization's.    								|
+| slug     | string  | A url-friendly slug. Can be used to retrieve a product in place of a product ID. The localization object will only contain this variable and the `locale` if the [currently request locale](#language) is different to this localization's.    								|
 | name     | string  | Product name.																								|
+| locale     | string  | The localizations's [locale](#locales) object. 																								|
 | format   | string  | Localized product format (if available).																			|
 | short_description   | string  | A plain text product description. Data entry clerks are instructed to keep these short descriptions around 140 characters long, but no hard limit is enforced.|
 | long_description   | string  | A [markdown](https://daringfireball.net/projects/markdown/syntax) formatted product description.		|
@@ -144,111 +145,111 @@ r = requests.get(endpoint, headers=headers)
 ```json
 
 {
-  "organic_results": [
-   {
-     "id": 123,
-     "taxable": true,
-     "enabled": true,
-     "formats": [
-	 	{
+	"organic_results": [{
+		"id": 123,
+		"taxable": true,
+		"enabled": true,
+		"formats": [{
 			"id": "32-wipes",
 			"name": "32 wipes",
 			"price": 19.95,
 			"barcode": "123456789012",
-	        "sku": "B003SXGN7K",
-	        "weight": 0.23,
+			"sku": "B003SXGN7K",
+			"weight": 0.23,
 			"discontinued": false,
-	        "reduced_price": {
-	      	  "price": 15.95
-	        },
-	        "inventory": {
-	          "count": 0
-	        }
-		}
-	 ],
-     "rating": 0.98,
-     "brand": {
-       "id": 123,
-       "slug": "hawtorne-wipes",
-       "name": "Hawtorne Wipes"
-     },
-     "localizations": {
-		 "en-CA": {
-       "name": "Troy and Abed Mug",
-       "short_description": "Excellent mug for a fake morning show.",
-       "long_description": "An interview with Señor Chang...",
-       "slug": "troy-abed-morning-mug",
-       "custom_description": {
-         "content": "I use this mug every single day...",
-         "author_name": "Dean Pelton",
-         "author_avatar": "{base64 encoded png}"
-       }
-     },
-	 	"fr-CA": {
-			"slug": "Tasse de Troy et Abed",
-		}
-	 },
-     "images": [
-       {
-         "id": 9876,
-         "url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
-       }
-     ]
-   }
-  ],
-  "tags": [
-    {
-      "name": "Hawtorn Wipes",
-      "id": 1,
-      "products": [
-	    {
-	      "id": 123,
-	      "taxable": true,
-	      "enabled": true,
-	      "formats": [
-	 	 	{
+			"reduced_price": {
+				"price": 15.95
+			},
+			"inventory": {
+				"count": 0
+			}
+		}],
+		"rating": 0.98,
+		"brand": {
+			"id": 123,
+			"slug": "hawtorne-wipes",
+			"name": "Hawtorne Wipes"
+		},
+		"localizations": {
+			"en-CA": {
+				"name": "Troy and Abed Mug",
+				"short_description": "Excellent mug for a fake morning show.",
+				"long_description": "An interview with Señor Chang...",
+				"slug": "troy-abed-morning-mug",
+				"custom_description": {
+					"content": "I use this mug every single day...",
+					"author_name": "Dean Pelton",
+					"author_avatar": "{base64 encoded png}"
+				},
+				"locale": {
+					"id": "en-CA",
+					"name": "English Canada",
+					"language": "en",
+					"language_name": "English",
+					"script": "Latn"
+				}
+			},
+			"fr-CA": {
+				"slug": "Tasse de Troy et Abed"
+			},
+			"locale": {
+				"id": "fr-CA",
+				"name": "Français Canada",
+				"language": "fr",
+				"language_name": "French",
+				"script": "Latn"
+			}
+		},
+		"images": [{
+			"id": 9876,
+			"url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
+		}]
+	}],
+	"tags": [{
+		"name": "Hawtorn Wipes",
+		"id": 1,
+		"products": [{
+			"id": 123,
+			"taxable": true,
+			"enabled": true,
+			"formats": [{
 				"id": "32-wipes",
 				"name": "32 wipes",
-	 			"price": 19.95,
-	 			"barcode": "123456789012",
-	 	        "sku": "B003SXGN7K",
-	 	        "weight": 0.23,
-	 			"discontinued": false,
-	 	        "reduced_price": {
-	 	      	  "price": 15.95
-	 	        },
-	 	        "inventory": {
-	 	          "count": 0
-	 	        }
-	 		}
-	 	 ],
-	      "rating": 0.98,
-	      "brand": {
-	        "id": 123,
-	        "slug": "hawtorne-wipes",
-	        "name": "Hawtorne Wipes"
-	      },
-	      "localization": {
-	        "name": "Troy and Abed Mug",
-	        "short_description": "Excellent mug for a fake morning show.",
-	        "long_description": "An interview with Señor Chang...",
-	        "slug": "troy-abed-morning-mug",
-	        "custom_description": {
-	          "content": "I use this mug every single day...",
-	          "author_name": "Dean Pelton",
-	          "author_avatar": "{base64 encoded png}"
-	        }
-	      },
-	      "images": [
-	        {
-	          "id": 9876,
-	          "url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
-	        }
-	      ]
-	    }
-      ]
-    }
-  ]
+				"price": 19.95,
+				"barcode": "123456789012",
+				"sku": "B003SXGN7K",
+				"weight": 0.23,
+				"discontinued": false,
+				"reduced_price": {
+					"price": 15.95
+				},
+				"inventory": {
+					"count": 0
+				}
+			}],
+			"rating": 0.98,
+			"brand": {
+				"id": 123,
+				"slug": "hawtorne-wipes",
+				"name": "Hawtorne Wipes"
+			},
+			"localization": {
+				"name": "Troy and Abed Mug",
+				"short_description": "Excellent mug for a fake morning show.",
+				"long_description": "An interview with Señor Chang...",
+				"slug": "troy-abed-morning-mug",
+				"custom_description": {
+					"content": "I use this mug every single day...",
+					"author_name": "Dean Pelton",
+					"author_avatar": "{base64 encoded png}"
+				}
+			},
+			"images": [{
+				"id": 9876,
+				"url": "https:\\/\\/img.kem.guru\\/product-8-8915-troy-abed-morning-mug-{width}-{height}-{mode}"
+			}]
+		}]
+	}]
 }
 
 ```

@@ -99,7 +99,11 @@ r = requests.get(endpoint, headers=headers)
   },
   "support": {
     "email": "support@greendale.edu.example.com",
-    "phone": null
+    "phone": {
+		"number": "+15145554321",
+		"vanity": "(514) 555-4321",
+		"tollfree": false
+	}
   },
   "colors": {
     "color_one": "d6282d",

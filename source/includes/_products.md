@@ -12,7 +12,6 @@ The *product* object is central to KEM API as it provides everything there is to
 | slug   | string   | A url-friendly slug. Can be used to retrieve a product in place of a product ID. |
 | rating | float    | Product score, on a 0 to 1 scale. 					 														   |
 | brand  | object   | A [brand](#brands) object.																						|
-| localizations  | object   | A list of localizations available for this product. Only the locale requested in Accept-Language: will be complete; other locales will only contain a slug for easy linking.  																		|
 | images | array | An array of product images.																						    |
 | formats | array | A list of format objects.																						    |
 
@@ -21,13 +20,14 @@ The *product* object is central to KEM API as it provides everything there is to
 
 | Name     | Type    | Description                                                                                                      |
 |----------|---------|------------------------------------------------------------------------------------------------------------------|
-| slug     | string  | A url-friendly slug. Can be used to retrieve a product in place of a product ID. The localization object will only contain this variable and the `locale` if the [currently request locale](#language) is different to this localization's.    								|
-| name     | string  | Product name.																								|
-| locale     | string  | The localizations's [locale](#locales) object. 																								|
+| slug     | string  | A url-friendly slug. Can be used to retrieve a product in place of a product ID.    							 |
+| name     | string  | Product name.																									|
+| locale     | string  | The localizations's [locale](#locales) object.																	|
 | format   | string  | Localized product format (if available).																			|
 | short_description   | string  | A plain text product description. Data entry clerks are instructed to keep these short descriptions around 140 characters long, but no hard limit is enforced.|
 | long_description   | string  | A [markdown](https://daringfireball.net/projects/markdown/syntax) formatted product description.		|
 | custom_description | object | A custom description object. 																			|
+| alt | object | An array of alternate localizations. These localization object will only contain a `locale` and `slug` variable.       |
 
 #### Custom description object
 
@@ -170,34 +170,34 @@ r = requests.get(endpoint, headers=headers)
 			"slug": "hawtorne-wipes",
 			"name": "Hawtorne Wipes"
 		},
-		"localizations": {
-			"en-CA": {
-				"name": "Troy and Abed Mug",
-				"short_description": "Excellent mug for a fake morning show.",
-				"long_description": "An interview with Señor Chang...",
-				"slug": "troy-abed-morning-mug",
-				"custom_description": {
-					"content": "I use this mug every single day...",
-					"author_name": "Dean Pelton",
-					"author_avatar": "{base64 encoded png}"
-				},
-				"locale": {
-					"id": "en-CA",
-					"name": "English Canada",
-					"language": "en",
-					"language_name": "English",
-					"script": "Latn"
-				}
-			},
-			"fr-CA": {
-				"slug": "Tasse de Troy et Abed"
+		"localization": {
+			"name": "Troy and Abed Mug",
+			"short_description": "Excellent mug for a fake morning show.",
+			"long_description": "An interview with Señor Chang...",
+			"slug": "troy-abed-morning-mug",
+			"custom_description": {
+				"content": "I use this mug every single day...",
+				"author_name": "Dean Pelton",
+				"author_avatar": "{base64 encoded png}"
 			},
 			"locale": {
-				"id": "fr-CA",
-				"name": "Français Canada",
-				"language": "fr",
-				"language_name": "French",
+				"id": "en-CA",
+				"name": "English Canada",
+				"language": "en",
+				"language_name": "English",
 				"script": "Latn"
+			}
+			"alt": {
+				"fr-CA": {
+					"slug": "tasse-de-troy-et-abed",
+					"locale": {
+						"id": "fr-CA",
+						"name": "Français Canada",
+						"language": "fr",
+						"language_name": "French",
+						"script": "Latn"
+					}
+				}
 			}
 		},
 		"images": [{

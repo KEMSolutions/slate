@@ -186,7 +186,7 @@ r = requests.get(endpoint, headers=headers)
 				"language": "en",
 				"language_name": "English",
 				"script": "Latn"
-			}
+			},
 			"alt": {
 				"fr-CA": {
 					"slug": "tasse-de-troy-et-abed",
